@@ -1,0 +1,41 @@
+CLASS CustomLinkedList
+    VARIABLE head
+
+    METHOD insert(data)
+        CREATE new node
+        IF head is null
+            head = new node
+        ELSE
+            traverse to last node
+            last.next = new node
+
+    METHOD delete(data)
+        IF head is null
+            return
+
+        IF head.data == data
+            head = head.next
+            return
+
+        SET current = head
+        WHILE next node exists AND next.data != data
+            move current forward
+
+        IF found node
+            bypass node (delete it)
+
+    METHOD iterator()
+        RETURN new LinkedListIterator
+
+CLASS LinkedListIterator
+    VARIABLE current = head
+
+    METHOD hasNext()
+        RETURN current != null
+
+    METHOD next()
+        IF no next element
+            THROW exception
+        SAVE current.data
+        MOVE current forward
+        RETURN saved data
