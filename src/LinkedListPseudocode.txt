@@ -2,40 +2,118 @@ CLASS CustomLinkedList
     VARIABLE head
 
     METHOD insert(data)
-        CREATE new node
+        CREATE newNode with data
         IF head is null
-            head = new node
+            head = newNode
         ELSE
-            traverse to last node
-            last.next = new node
+            SET current = head
+            WHILE current.next is not null
+                MOVE current to next node
+            END WHILE
+            current.next = newNode
+        END IF
+    END METHOD
 
     METHOD delete(data)
         IF head is null
-            return
+            RETURN
 
-        IF head.data == data
+        IF head.data equals data
             head = head.next
-            return
+            RETURN
 
         SET current = head
-        WHILE next node exists AND next.data != data
-            move current forward
 
-        IF found node
-            bypass node (delete it)
+        WHILE current.next is not null AND current.next.data != data
+            MOVE current to next node
+        END WHILE
+
+        IF current.next is not null
+            current.next = current.next.next   // remove node
+        END IF
+    END METHOD
 
     METHOD iterator()
         RETURN new LinkedListIterator
+    END METHOD
 
-CLASS LinkedListIterator
+
+CLASS LinkedListIterator IMPLEMENTS Iterator
     VARIABLE current = head
 
     METHOD hasNext()
-        RETURN current != null
+        RETURN current is not null
+    END METHOD
 
     METHOD next()
-        IF no next element
-            THROW exception
-        SAVE current.data
-        MOVE current forward
-        RETURN saved data
+        IF current is null
+            THROW NoSuchElementException
+
+        SET value = current.data
+        MOVE current to next node
+        RETURN value
+    END METHOD
+END CLASS
+
+
+--------------------------------------------
+
+MAIN PROGRAM
+
+CREATE empty CustomLinkedList called list
+
+TRY
+    OPEN file "data.txt"
+    CREATE scanner to read file
+
+    WHILE scanner has next line
+        READ line from file
+
+        REMOVE BOM character (\uFEFF) from line if present
+
+        TRIM leading and trailing whitespace
+
+        SPLIT line into parts using whitespace delimiter (\s+)
+
+        FOR EACH part in parts
+            IF part is not empty
+                CONVERT part to integer
+                INSERT integer into list
+            END IF
+        END FOR
+    END WHILE
+
+    CLOSE scanner
+
+CATCH file not found error
+    PRINT error message
+    EXIT program
+END TRY
+
+
+// Demonstration of functionality
+
+PRINT "List after insertion:"
+ITERATE through list using iterator
+    PRINT each element
+
+PRINT "Deleting value 2"
+CALL list.delete(2)
+
+PRINT "List after deletion:"
+ITERATE through list
+    PRINT each element
+
+PRINT "Deleting head node (value 1)"
+CALL list.delete(1)
+
+PRINT "List after deleting head:"
+ITERATE through list
+    PRINT each element
+
+PRINT "Attempting to delete value not in list (100)"
+CALL list.delete(100)
+
+PRINT "Final list:"
+ITERATE through list
+    PRINT each element
